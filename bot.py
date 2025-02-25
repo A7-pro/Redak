@@ -1,19 +1,20 @@
+import os
 import telebot
 import sqlite3
 
-# ضع التوكن هنا
-TOKEN = "YOUR_BOT_TOKEN"
+# 🔹 سحب التوكن من متغيرات البيئة (Environment Variables) في Render
+TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
 
-# قائمة المطورين (أنت الأساسي)
+# 🔹 قائمة المطورين (أنت الأساسي)
 DEVELOPER_ID = 7601607055
 developers = [DEVELOPER_ID]
 
-# إنشاء قاعدة بيانات لحفظ الأذكار
+# 🔹 إنشاء قاعدة بيانات لحفظ الأذكار
 conn = sqlite3.connect("azkar.db", check_same_thread=False)
 cursor = conn.cursor()
 
-# إنشاء جدول الأذكار إذا لم يكن موجودًا
+# 🔹 إنشاء جدول الأذكار إذا لم يكن موجودًا
 cursor.execute('''CREATE TABLE IF NOT EXISTS azkar (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT,
@@ -21,15 +22,15 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS azkar (
                     file_id TEXT,
                     file_type TEXT)''')
 
-# إنشاء جدول المطورين إذا لم يكن موجودًا
+# 🔹 إنشاء جدول المطورين إذا لم يكن موجودًا
 cursor.execute('''CREATE TABLE IF NOT EXISTS developers (
                     user_id INTEGER PRIMARY KEY)''')
 
-# إضافة المطور الأساسي للجدول إذا لم يكن موجودًا
+# 🔹 إضافة المطور الأساسي للجدول إذا لم يكن موجودًا
 cursor.execute("INSERT OR IGNORE INTO developers (user_id) VALUES (?)", (DEVELOPER_ID,))
 conn.commit()
 
-# أوامر لوحة التحكم
+# 🔹 أوامر لوحة التحكم
 @bot.message_handler(commands=['admin'])
 def admin_panel(message):
     if message.from_user.id in developers:
@@ -43,7 +44,7 @@ def admin_panel(message):
     else:
         bot.reply_to(message, "❌ ليس لديك صلاحية لاستخدام لوحة التحكم.")
 
-# إضافة ذكر جديد
+# 🔹 إضافة ذكر جديد
 @bot.message_handler(commands=['add_zekr'])
 def add_zekr(message):
     if message.from_user.id in developers:
@@ -75,7 +76,7 @@ def save_zekr_content(message, zekr_name):
     conn.commit()
     bot.reply_to(message, "✅ تم إضافة الذكر بنجاح!")
 
-# حذف ذكر
+# 🔹 حذف ذكر
 @bot.message_handler(commands=['delete_zekr'])
 def delete_zekr(message):
     if message.from_user.id in developers:
@@ -90,7 +91,7 @@ def confirm_delete_zekr(message):
     conn.commit()
     bot.reply_to(message, f"✅ تم حذف الذكر: {zekr_name}")
 
-# عرض جميع الأذكار
+# 🔹 عرض جميع الأذكار
 @bot.message_handler(commands=['list_azkar'])
 def list_azkar(message):
     cursor.execute("SELECT name FROM azkar")
@@ -101,7 +102,7 @@ def list_azkar(message):
         response = "❌ لا يوجد أذكار مضافة بعد."
     bot.reply_to(message, response, parse_mode="Markdown")
 
-# إضافة مطور
+# 🔹 إضافة مطور
 @bot.message_handler(commands=['add_dev'])
 def add_dev(message):
     if message.from_user.id in developers:
@@ -119,7 +120,7 @@ def save_dev(message):
     except ValueError:
         bot.reply_to(message, "❌ الرجاء إرسال رقم معرف صحيح.")
 
-# إزالة مطور
+# 🔹 إزالة مطور
 @bot.message_handler(commands=['remove_dev'])
 def remove_dev(message):
     if message.from_user.id in developers:
@@ -137,7 +138,7 @@ def confirm_remove_dev(message):
     except ValueError:
         bot.reply_to(message, "❌ الرجاء إرسال رقم معرف صحيح.")
 
-# عرض قائمة المطورين
+# 🔹 عرض قائمة المطورين
 @bot.message_handler(commands=['list_devs'])
 def list_devs(message):
     cursor.execute("SELECT user_id FROM developers")
@@ -148,6 +149,6 @@ def list_devs(message):
         response = "❌ لا يوجد مطورين مسجلين."
     bot.reply_to(message, response, parse_mode="Markdown")
 
-# تشغيل البوت
-print("بوت رضاك يعمل الآن...")
+# 🔹 تشغيل البوت
+print("🚀 بوت رضاك يعمل الآن...")
 bot.polling(none_stop=True)
