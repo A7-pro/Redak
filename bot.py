@@ -1,12 +1,16 @@
 import os
 import telebot
 import sqlite3
+import time
 
-# 🔹 سحب التوكن من متغيرات البيئة (Environment Variables) في Render
+# 🔹 تحميل التوكن من بيئة Render
 TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
 
-# 🔹 قائمة المطورين (أنت الأساسي)
+# 🔹 إزالة أي Webhook مفعّل قبل تشغيل البوت
+bot.remove_webhook()
+
+# 🔹 قائمة المطورين (أنا الأساسي)
 DEVELOPER_ID = 7601607055
 developers = [DEVELOPER_ID]
 
@@ -149,6 +153,11 @@ def list_devs(message):
         response = "❌ لا يوجد مطورين مسجلين."
     bot.reply_to(message, response, parse_mode="Markdown")
 
-# 🔹 تشغيل البوت
-print("🚀 بوت رضاك يعمل الآن...")
-bot.polling(none_stop=True)
+# 🔹 تشغيل البوت مع إعادة التشغيل التلقائي في حالة حدوث خطأ
+while True:
+    try:
+        print("🚀 بوت رضاك يعمل الآن...")
+        bot.polling(none_stop=True)
+    except Exception as e:
+        print(f"⚠️ خطأ في تشغيل البوت: {e}")
+        time.sleep(5)  # انتظر 5 ثوانٍ ثم حاول التشغيل مرة أخرى
